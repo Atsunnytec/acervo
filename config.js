@@ -6,6 +6,8 @@ window.ESTANTE_CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_twt3urXyCyNy6BlxKVAl0w_CgD6Bg5e",
   // themoviedb.org → Configurações → API → "Chave da API" (ou o "Token de leitura")
   TMDB_KEY: "783de049239ca003139c50c522baff79",
+  // Opcional: chave do OMDb (omdbapi.com/apikey.aspx, plano FREE) para as notas do IMDb e do Rotten Tomatoes
+  OMDB_KEY: "",
   // Mude para true depois de configurar o login com Google no Supabase
   LOGIN_GOOGLE: false,
 };
