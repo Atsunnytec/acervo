@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Meu Acervo</title>
-<meta name="description" content="Registre filmes, séries, livros, bebidas, viagens e jogos, com capa, informações, status e nota.">
+<meta name="description" content="Guarde indicações de filmes e séries, com capa, sinopse, status e nota.">
 <meta name="theme-color" content="#2f4fd6">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
@@ -27,7 +27,7 @@
 <main class="wrap" id="authView" hidden>
   <section class="auth" aria-labelledby="authTitle">
     <h1 id="authTitle">Meu Acervo</h1>
-    <p>Registre os filmes, séries, livros, bebidas, viagens e jogos da sua vida. Cada pessoa tem o próprio acervo.</p>
+    <p>Guarde as indicações de filmes e séries que você quer ver e o que achou dos que já viu. Cada pessoa tem o próprio acervo.</p>
     <button class="btn" type="button" id="googleBtn" hidden>Entrar com Google</button>
     <div class="or" id="orLine" hidden>ou</div>
     <nav class="tabs" aria-label="Acesso">
@@ -61,8 +61,9 @@
       <span class="who-mail" id="whoEmail"></span>
       <button class="linkbtn" type="button" id="signOut">Sair</button>
       <div class="side-tools">
+        <button class="linkbtn" type="button" id="scoresBtn">Buscar notas (IMDb e Rotten Tomatoes)</button>
         <button class="linkbtn" type="button" id="exportBtn">Exportar (JSON)</button>
-        <span class="linkbtn fileBtn">Importar<input type="file" id="importFile" accept="application/json,.json" aria-label="Importar registros em JSON"></span>
+        <span class="linkbtn fileBtn">Importar<input type="file" id="importFile" accept="application/json,.json" aria-label="Importar filmes e séries em JSON"></span>
       </div>
     </div>
   </aside>
@@ -84,8 +85,27 @@
         <section class="grid" id="recent"></section>
         <div class="empty" id="homeEmpty" hidden>
           <h2>Seu acervo está vazio</h2>
-          <p>Escolha uma seção no menu e adicione o primeiro registro.</p>
+          <p>Clique em "+ Adicionar" e registre o primeiro filme ou série.</p>
         </div>
+      </section>
+
+      <!-- Discover: TMDB lists and recommendations -->
+      <section id="discoverView" hidden>
+        <header>
+          <div>
+            <h1>Descobrir</h1>
+            <p class="counts">Indicações e tendências do momento, do TMDB</p>
+          </div>
+        </header>
+        <nav class="tabs" id="discType" aria-label="Filmes ou séries"></nav>
+        <nav class="tabs tabs-sm" id="discTabs" aria-label="Listas"></nav>
+        <div class="disc-filters">
+          <select id="discGenre" aria-label="Gênero"><option value="">Todos os gêneros</option></select>
+          <label class="check"><input type="checkbox" id="discHide"> Esconder o que já está na minha lista</label>
+        </div>
+        <p class="sub" id="discState" hidden></p>
+        <section id="discList" class="grid" aria-live="polite"></section>
+        <button class="btn" type="button" id="discMore" hidden>Carregar mais</button>
       </section>
 
       <!-- Section -->
@@ -99,13 +119,17 @@
           <button class="btn btn-primary" id="addBtn" type="button">+ Adicionar</button>
         </header>
         <nav class="tabs" id="subTabs" aria-label="Subseções"></nav>
+        <nav class="tabs tabs-sm" id="statusTabs" aria-label="Filtrar por status"></nav>
         <div class="toolbar">
           <input type="search" id="q" placeholder="Buscar" aria-label="Buscar">
-          <select id="fStatus" aria-label="Filtrar por status"></select>
           <select id="sort" aria-label="Ordenar">
-            <option value="recent">Mais recentes</option>
+            <option value="recent">Adicionados recentemente</option>
             <option value="title">Nome (A–Z)</option>
-            <option value="rating">Melhor nota</option>
+            <option value="year-desc">Lançamento: mais novos</option>
+            <option value="year-asc">Lançamento: mais antigos</option>
+            <option value="rating">Minha nota</option>
+            <option value="imdb">Nota IMDb</option>
+            <option value="rt">Rotten Tomatoes</option>
           </select>
         </div>
         <section id="list" class="grid" aria-live="polite"></section>

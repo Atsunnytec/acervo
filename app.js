@@ -4,96 +4,41 @@ const CFG = window.ESTANTE_CONFIG || {};
 
 // ---------- sections ----------
 const ICONS = {
-  estante: '<path d="M5 4h3v16H5zM10 4h3v16h-3zM15.2 4.6l2.9-.8 3.9 15.5-2.9.8z" fill="currentColor"/>',
-  bebidas: '<path d="M7 3h10l-1 7a4 4 0 0 1-8 0zM12 14v5M8 21h8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-  viagens: '<path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="2.2" fill="currentColor"/>',
-  jogos: '<path d="M7 8h10a4 4 0 0 1 4 4.5l-.6 3.6a2 2 0 0 1-3.4 1L15 15H9l-2 2.1a2 2 0 0 1-3.4-1L3 12.5A4 4 0 0 1 7 8z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M8 11v3M6.5 12.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="15.5" cy="12" r="1" fill="currentColor"/><circle cx="17" cy="13.8" r="1" fill="currentColor"/>',
+  estante: '<rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M7 5v14M17 5v14M3 9.5h4M3 14.5h4M17 9.5h4M17 14.5h4" stroke="currentColor" stroke-width="1.6"/>',
+  descobrir: '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor"/>',
   inicio: '<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>',
 };
 const ST_WATCH = { fila: "Quero ver", andamento: "Assistindo", concluido: "Visto" };
+// The database keeps section = "estante" for every row; only movies and series are shown.
 const SECTIONS = {
   estante: {
-    label: "Estante", item: "título", itemArt: "o primeiro título",
+    label: "Filmes e séries", item: "título", itemArt: "o primeiro título",
     subs: {
-      filme: { label: "Filmes", one: "Filme", src: "tmdb-movie", creator: "Direção" },
+      filme: { label: "Filmes", one: "Filme", src: "tmdb-movie", creator: "Direção", status: { fila: "Quero ver", concluido: "Visto" } },
       serie: { label: "Séries", one: "Série", src: "tmdb-tv", creator: "Criação", status: { ...ST_WATCH, concluido: "Vista" } },
-      anime: { label: "Animes", one: "Anime", src: "tmdb-anime", creator: "Estúdio" },
-      livro: { label: "Livros", one: "Livro", src: "books", creator: "Autoria", status: { fila: "Quero ler", andamento: "Lendo", concluido: "Lido" } },
     },
     status: ST_WATCH,
     fields: (sub) => [
       { col: "creator", label: SECTIONS.estante.subs[sub].creator },
       { col: "year", label: "Ano", year: true },
       { col: "genre", label: "Gênero", full: true },
+      { key: "imdb", label: "Nota IMDb", hint: "Ex.: 7.8", num: true },
+      { key: "rt", label: "Rotten Tomatoes", hint: "Ex.: 93%" },
     ],
     titleLabel: "Título", synLabel: "Sinopse", notesLabel: "Anotações",
-    notesHint: "Onde assistir, edição do livro, por que quero ver…",
-  },
-  bebidas: {
-    label: "Bebidas", item: "bebida", itemArt: "a primeira bebida",
-    subs: {
-      vinho: { label: "Vinhos", one: "Vinho", src: "wiki", creator: "Vinícola" },
-      whisky: { label: "Whiskys", one: "Whisky", src: "wiki", creator: "Destilaria" },
-      cerveja: { label: "Cervejas", one: "Cerveja", src: "wiki", creator: "Cervejaria" },
-    },
-    status: { fila: "Quero provar", concluido: "Provei" },
-    fields: (sub) => [
-      { col: "creator", label: SECTIONS.bebidas.subs[sub].creator },
-      { key: "origin", label: "País / região", hint: "Ex.: Mendoza, Argentina" },
-      sub === "vinho" ? { col: "genre", label: "Uva", hint: "Ex.: Malbec" }
-        : sub === "whisky" ? { col: "genre", label: "Tipo", hint: "Ex.: Single malt, bourbon" }
-        : { col: "genre", label: "Estilo", hint: "Ex.: IPA, Pilsen" },
-      sub === "vinho" ? { col: "year", label: "Safra", year: true }
-        : sub === "whisky" ? { key: "age", label: "Idade", hint: "Ex.: 12 anos" }
-        : { key: "volume", label: "Volume", hint: "Ex.: 473 ml" },
-      { key: "abv", label: "Teor alcoólico", hint: "Ex.: 13,5%" },
-      { key: "price", label: "Preço", hint: "Ex.: R$ 120" },
-      { key: "where", label: "Onde comprei ou provei", full: true },
-    ],
-    titleLabel: "Nome", synLabel: "Descrição", notesLabel: "Notas de prova",
-    notesHint: "Aroma, sabor, harmonização…",
-  },
-  viagens: {
-    label: "Viagens", item: "destino", itemArt: "o primeiro destino",
-    subs: {
-      pais: { label: "Países", one: "País", src: "wiki" },
-      cidade: { label: "Cidades", one: "Cidade", src: "wiki", creator: "País" },
-    },
-    status: { fila: "Quero ir", andamento: "Planejando", concluido: "Fui" },
-    fields: (sub) => [
-      ...(sub === "cidade" ? [{ col: "creator", label: "País" }] : []),
-      { key: "when", label: "Quando", hint: "Ex.: jul/2024" },
-      { key: "with", label: "Com quem", full: sub === "cidade" },
-      { key: "highlights", label: "Lugares favoritos", full: true, hint: "Ex.: Mercado da Ribeira, Belém" },
-    ],
-    titleLabel: "Lugar", synLabel: "Sobre o lugar", notesLabel: "Anotações",
-    notesHint: "Dicas, roteiro, onde ficar…", wide: true,
-  },
-  jogos: {
-    label: "Jogos", item: "jogo", itemArt: "o primeiro jogo",
-    subs: {
-      ps5: { label: "PlayStation 5", one: "PS5", src: "rawg" },
-      xbox: { label: "Xbox", one: "Xbox", src: "rawg" },
-      nintendo: { label: "Nintendo", one: "Nintendo", src: "rawg" },
-      steam: { label: "Steam", one: "Steam", src: "rawg" },
-      mobile: { label: "Mobile", one: "Mobile", src: "rawg" },
-      outro: { label: "Outras plataformas", one: "Outra plataforma", src: "rawg" },
-    },
-    status: { fila: "Quero jogar", andamento: "Jogando", concluido: "Zerei", abandonado: "Larguei" },
-    fields: () => [
-      { col: "creator", label: "Estúdio" },
-      { col: "year", label: "Ano", year: true },
-      { col: "genre", label: "Gênero" },
-      { key: "hours", label: "Horas jogadas", num: true },
-    ],
-    titleLabel: "Jogo", synLabel: "Sobre o jogo", notesLabel: "Anotações",
-    notesHint: "Onde parei, troféus, dicas…",
+    notesHint: "Onde assistir, quem indicou, por que quero ver…",
   },
 };
 const SECTION_KEYS = Object.keys(SECTIONS);
-const GENERIC_STATUS = { fila: "Na fila", andamento: "Em andamento", concluido: "Concluídos", abandonado: "Abandonados" };
+const GENERIC_STATUS = { fila: "Na fila", andamento: "Em andamento", concluido: "Concluídos" };
 const statusLabels = (section, sub) => (sub && SECTIONS[section].subs[sub]?.status) || SECTIONS[section].status;
 function sectionOfType(type) { return SECTION_KEYS.find((s) => SECTIONS[s].subs[type]) || "estante"; }
+const isShown = (it) => Boolean(SECTIONS[it.section]?.subs[it.type]);
+// details kept on save even though the form has no field for them
+const HIDDEN_DETAILS = ["imdbid", "tmdbid"];
+function score(v) { const n = parseFloat(String(v || "").replace(",", ".")); return isNaN(n) ? null : n; }
+function fmtImdb(v) { const n = score(v); return n == null ? "" : n.toFixed(1).replace(".", ","); }
+function fmtRt(v) { const n = score(v); return n == null ? "" : Math.round(n) + "%"; }
 
 const $ = (id) => document.getElementById(id);
 const state = {
@@ -111,7 +56,7 @@ function svg(name, size) {
   return s;
 }
 function norm(s) { return (s || "").toString().normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
-function show(id, msg) { const n = $(id); n.textContent = msg || ""; n.hidden = !msg; }
+function show(id, msg, ok) { const n = $(id); n.textContent = msg || ""; n.hidden = !msg; if (id === "notice") n.className = ok ? "ok" : "notice"; }
 function stars(n) {
   const s = el("span", "stars"); s.setAttribute("aria-label", n + " de 5");
   for (let i = 1; i <= 5; i++) s.appendChild(el("span", i <= n ? "" : "off", "★"));
@@ -130,7 +75,7 @@ function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
 const PALETTE = [["#1f3a5f", "#f2d492"], ["#5b1e2d", "#f6d7c3"], ["#173f35", "#e9e4c9"], ["#2d2a4a", "#f0b87a"], ["#3d2c1e", "#e8d3a9"], ["#0f4c5c", "#ffd6a5"], ["#4a1942", "#f9c6c9"], ["#22313f", "#9ad1d4"]];
 function colorsFor(title) { let h = 0; for (const ch of title || "") h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
 function coverEl(it, big) {
-  const c = el("div", "cover" + (big ? " big" : "") + (SECTIONS[it.section]?.wide ? " wide" : ""));
+  const c = el("div", "cover" + (big ? " big" : ""));
   c.setAttribute("aria-hidden", "true");
   const url = safeHttps(it.coverUrl);
   if (url) {
@@ -150,9 +95,10 @@ function coverEl(it, big) {
 // ---------- rows <-> items ----------
 function fromRow(r) {
   const section = SECTIONS[r.section] ? r.section : sectionOfType(r.type);
+  const labels = SECTIONS[section].subs[r.type] ? statusLabels(section, r.type) : null;
   return {
     id: r.id, section, type: r.type, title: r.title, creator: r.creator, year: r.year,
-    status: r.status, rating: r.rating, notes: r.notes, synopsis: r.synopsis, genre: r.genre,
+    status: !labels || labels[r.status] ? r.status : "fila", rating: r.rating, notes: r.notes, synopsis: r.synopsis, genre: r.genre,
     coverUrl: r.cover_url, details: r.details && typeof r.details === "object" ? r.details : {},
     createdAt: r.created_at, updatedAt: r.updated_at,
   };
@@ -191,6 +137,7 @@ function toRow(it) {
 function parseHash() {
   const [s, sub] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
   if (SECTIONS[s]) return { section: s, sub: SECTIONS[s].subs[sub] ? sub : "" };
+  if (s === "descobrir") return { section: s, sub: "" };
   return { section: "inicio", sub: "" };
 }
 function go(section, sub) {
@@ -228,6 +175,10 @@ function renderNav() {
   home.append(svg("inicio"), "Início");
   if (state.section === "inicio") home.setAttribute("aria-current", "page");
   nav.appendChild(home);
+  const dl = el("a", "nav-link"); dl.href = "#descobrir";
+  dl.append(svg("descobrir"), "Descobrir");
+  if (state.section === "descobrir") dl.setAttribute("aria-current", "page");
+  nav.appendChild(dl);
   SECTION_KEYS.forEach((s) => {
     const sec = SECTIONS[s];
     const a = el("a", "nav-link sec-" + s); a.href = "#" + s;
@@ -249,7 +200,7 @@ function renderNav() {
 
 function statusLine(list) {
   const c = countBy(list, "status");
-  const words = { fila: ["na fila", "na fila"], andamento: ["em andamento", "em andamento"], concluido: ["concluído", "concluídos"], abandonado: ["abandonado", "abandonados"] };
+  const words = { fila: ["na fila", "na fila"], andamento: ["em andamento", "em andamento"], concluido: ["concluído", "concluídos"] };
   return Object.keys(words).filter((k) => c[k]).map((k) => c[k] + " " + words[k][c[k] === 1 ? 0 : 1]).join(" · ");
 }
 
@@ -267,15 +218,12 @@ function card(it) {
   top.appendChild(el("span", "status s-" + it.status, statusLabels(it.section, it.type)[it.status] || ""));
   body.appendChild(top);
   body.appendChild(el("h3", null, it.title));
-  const d = it.details || {};
-  const meta = [it.creator, d.origin, it.year, d.age].filter(Boolean).join(", ");
+  const meta = [it.creator, it.year].filter(Boolean).join(", ");
   if (meta) body.appendChild(el("div", "meta", meta));
   if (it.genre) body.appendChild(el("div", "genre", it.genre));
-  const extra = it.section === "bebidas" ? [d.price, d.abv, d.volume]
-    : it.section === "viagens" ? [d.when, d.with ? "com " + d.with : ""]
-    : it.section === "jogos" ? [d.hours ? d.hours + " h jogadas" : ""] : [];
-  const ex = extra.filter(Boolean).join(" · ");
-  if (ex) body.appendChild(el("div", "extra", ex));
+  const d = it.details || {};
+  const sc = [fmtImdb(d.imdb) && "IMDb " + fmtImdb(d.imdb), fmtRt(d.rt) && "Rotten Tomatoes " + fmtRt(d.rt)].filter(Boolean).join(" · ");
+  if (sc) body.appendChild(el("div", "extra", sc));
   if (it.rating) body.appendChild(stars(it.rating));
   if (it.synopsis) body.appendChild(el("p", "syn", it.synopsis));
   if (it.notes) body.appendChild(el("p", "mynote", it.notes));
@@ -343,20 +291,31 @@ function renderSection() {
 
   // status filter
   const labels = state.sub ? statusLabels(s, state.sub) : Object.fromEntries(Object.keys(sec.status).map((k) => [k, GENERIC_STATUS[k]]));
-  const sel = $("fStatus");
-  if (sel.dataset.for !== s + "/" + state.sub) {
-    sel.replaceChildren(new Option("Todos os status", ""), ...Object.entries(labels).map(([k, v]) => new Option(v, k)));
-    sel.dataset.for = s + "/" + state.sub;
-    if (!labels[state.status]) state.status = "";
-    sel.value = state.status;
-  }
+  if (!labels[state.status]) state.status = "";
+  const byStatus = countBy(scope, "status");
+  const stTabs = $("statusTabs"); stTabs.replaceChildren();
+  [["", "Todos", scope.length], ...Object.entries(labels).map(([k, v]) => [k, v, byStatus[k] || 0])].forEach(([k, label, n]) => {
+    const b = el("button", "tab", label); b.type = "button";
+    b.appendChild(el("span", "n", String(n)));
+    b.setAttribute("aria-pressed", String(state.status === k));
+    b.addEventListener("click", () => { state.status = k; render(); });
+    stTabs.appendChild(b);
+  });
 
   const q = norm(state.q);
   const rows = scope.filter((it) =>
     (!state.status || it.status === state.status) &&
     (!q || norm([it.title, it.creator, it.notes, it.synopsis, it.genre, ...Object.values(it.details || {})].join(" ")).includes(q)));
+  // items without the value always go to the end
+  const desc = (f) => (a, b) => { const x = f(a), y = f(b); return x == null ? (y == null ? 0 : 1) : y == null ? -1 : y - x; };
+  const asc = (f) => (a, b) => { const x = f(a), y = f(b); return x == null ? (y == null ? 0 : 1) : y == null ? -1 : x - y; };
+  const year = (i) => score(i.year);
   const by = {
     title: (a, b) => (a.title || "").localeCompare(b.title || "", "pt-BR"),
+    "year-desc": desc(year),
+    "year-asc": asc(year),
+    imdb: desc((i) => score(i.details?.imdb)),
+    rt: desc((i) => score(i.details?.rt)),
     rating: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.createdAt || "").localeCompare(a.createdAt || ""),
     recent: (a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""),
   };
@@ -376,10 +335,13 @@ function renderSection() {
 
 function render() {
   renderNav();
-  const home = state.section === "inicio";
-  $("homeView").hidden = !home;
-  $("sectionView").hidden = home;
-  if (home) { document.title = "Meu Acervo"; renderHome(); } else renderSection();
+  const v = state.section === "inicio" ? "home" : state.section === "descobrir" ? "discover" : "section";
+  $("homeView").hidden = v !== "home";
+  $("sectionView").hidden = v !== "section";
+  $("discoverView").hidden = v !== "discover";
+  if (v === "home") { document.title = "Meu Acervo"; renderHome(); }
+  else if (v === "discover") { document.title = "Descobrir · Meu Acervo"; renderDiscover(); }
+  else renderSection();
 }
 
 // ---------- data ----------
@@ -392,7 +354,8 @@ async function loadItems() {
     return;
   }
   show("notice", "");
-  state.items = data.map(fromRow);
+  // rows from removed lists (books, drinks, trips, games…) stay in the database but are not shown
+  state.items = data.map(fromRow).filter(isShown);
   state.loaded = true;
   render();
 }
@@ -479,40 +442,12 @@ const noKey = (name) => Object.assign(new Error("no key"), { noKey: name });
 const PROVIDERS = {
   async "tmdb-movie"(q) { return tmdbSearch(q, false); },
   async "tmdb-tv"(q) { return tmdbSearch(q, true); },
-  async "tmdb-anime"(q) { return tmdbSearch(q, true, true); },
-  async books(q) { return bookSearch(q); },
-  async rawg(q) {
-    if (isPlaceholder(CFG.RAWG_KEY)) throw noKey("RAWG");
-    const u = new URL("https://api.rawg.io/api/games");
-    u.searchParams.set("key", CFG.RAWG_KEY); u.searchParams.set("search", q); u.searchParams.set("page_size", "8");
-    const d = await getJSON(u);
-    return (d.results || []).map((r) => ({
-      source: "rawg", id: r.id, title: r.name, year: (r.released || "").slice(0, 4),
-      cover: safeHttps(r.background_image), genre: (r.genres || []).slice(0, 2).map((g) => g.name).join(", "),
-      sub: (r.platforms || []).slice(0, 4).map((p) => p.platform.name).join(", "),
-    }));
-  },
-  async wiki(q) {
-    const u = new URL("https://pt.wikipedia.org/w/api.php");
-    Object.entries({
-      action: "query", format: "json", origin: "*", generator: "search", gsrsearch: q, gsrlimit: "8",
-      prop: "pageimages|extracts|description", exintro: "1", explaintext: "1", exsentences: "3",
-      piprop: "thumbnail", pithumbsize: "500",
-    }).forEach(([k, v]) => u.searchParams.set(k, v));
-    const d = await getJSON(u);
-    return Object.values((d.query && d.query.pages) || {}).sort((a, b) => a.index - b.index).map((p) => ({
-      source: "wiki", id: p.pageid, title: p.title, sub: p.description || "",
-      cover: p.thumbnail ? safeHttps(p.thumbnail.source) : null, synopsis: (p.extract || "").trim(),
-    }));
-  },
 };
-async function tmdbSearch(q, tv, anime) {
+async function tmdbSearch(q, tv) {
   if (isPlaceholder(CFG.TMDB_KEY)) throw noKey("TMDB");
   const d = await tmdb(tv ? "/search/tv" : "/search/movie", { query: q, language: "pt-BR", include_adult: "false" });
-  let res = d.results || [];
-  if (anime) { const a = res.filter((r) => (r.genre_ids || []).includes(16)); if (a.length) res = a; }
-  return res.slice(0, 8).map((r) => ({
-    source: "tmdb", id: r.id, tv, anime,
+  return (d.results || []).slice(0, 8).map((r) => ({
+    source: "tmdb", id: r.id, tv,
     title: tv ? r.name : r.title,
     original: tv ? r.original_name : r.original_title,
     year: ((tv ? r.first_air_date : r.release_date) || "").slice(0, 4),
@@ -520,72 +455,91 @@ async function tmdbSearch(q, tv, anime) {
     synopsis: r.overview || "",
   }));
 }
-async function bookSearch(q) {
-  try {
-    const u = new URL("https://www.googleapis.com/books/v1/volumes");
-    u.searchParams.set("q", q); u.searchParams.set("maxResults", "8"); u.searchParams.set("printType", "books");
-    if (CFG.GOOGLE_BOOKS_KEY) u.searchParams.set("key", CFG.GOOGLE_BOOKS_KEY);
-    const d = await getJSON(u);
-    const out = (d.items || []).map((v) => {
-      const i = v.volumeInfo || {};
-      const img = i.imageLinks && (i.imageLinks.thumbnail || i.imageLinks.smallThumbnail);
-      return {
-        source: "gbooks", id: v.id,
-        title: i.title + (i.subtitle ? ": " + i.subtitle : ""),
-        creator: (i.authors || []).join(", "),
-        year: (i.publishedDate || "").slice(0, 4),
-        cover: img ? safeHttps(img.replace("&edge=curl", "")) : null,
-        synopsis: plainText(i.description),
-        genre: (i.categories || [])[0] || "",
-      };
-    });
-    if (out.length) return out;
-  } catch (e) { /* Google Books unavailable or rate limited: try Open Library */ }
-  const u = new URL("https://openlibrary.org/search.json");
-  u.searchParams.set("q", q); u.searchParams.set("limit", "8");
-  u.searchParams.set("fields", "key,title,author_name,first_publish_year,cover_i");
-  const d = await getJSON(u);
-  return (d.docs || []).map((r) => ({
-    source: "openlibrary", id: r.key,
-    title: r.title, creator: (r.author_name || []).slice(0, 2).join(", "),
-    year: r.first_publish_year ? String(r.first_publish_year) : "",
-    cover: r.cover_i ? "https://covers.openlibrary.org/b/id/" + r.cover_i + "-L.jpg" : null,
-  }));
-}
 async function workDetails(r) {
   if (r.source === "tmdb") {
     const path = (r.tv ? "/tv/" : "/movie/") + r.id;
-    const d = await tmdb(path, r.tv ? { language: "pt-BR" } : { language: "pt-BR", append_to_response: "credits" });
+    const d = await tmdb(path, { language: "pt-BR", append_to_response: r.tv ? "external_ids" : "credits,external_ids" });
     let synopsis = d.overview || "";
     if (!synopsis) { try { synopsis = (await tmdb(path, { language: "en-US" })).overview || ""; } catch (e) {} }
-    const creator = r.anime
-      ? (d.production_companies || []).slice(0, 2).map((p) => p.name).join(", ")
-      : r.tv ? (d.created_by || []).map((p) => p.name).join(", ")
+    const creator = r.tv ? (d.created_by || []).map((p) => p.name).join(", ")
       : ((d.credits && d.credits.crew) || []).filter((p) => p.job === "Director").map((p) => p.name).join(", ");
     return {
       title: r.tv ? d.name : d.title, creator, year: r.year,
       genre: (d.genres || []).slice(0, 2).map((g) => g.name).join(", "),
       synopsis, cover: d.poster_path ? POSTER + d.poster_path : r.cover,
-    };
-  }
-  if (r.source === "openlibrary") {
-    let synopsis = "";
-    try {
-      const w = await getJSON("https://openlibrary.org" + r.id + ".json");
-      synopsis = typeof w.description === "string" ? w.description : (w.description && w.description.value) || "";
-    } catch (e) {}
-    return { ...r, synopsis: synopsis.split("\n----------")[0].trim() };
-  }
-  if (r.source === "rawg") {
-    const d = await getJSON("https://api.rawg.io/api/games/" + r.id + "?key=" + encodeURIComponent(CFG.RAWG_KEY));
-    return {
-      ...r, creator: (d.developers || []).slice(0, 2).map((p) => p.name).join(", "),
-      synopsis: (d.description_raw || "").trim().slice(0, 1200),
-      cover: safeHttps(d.background_image) || r.cover,
+      tmdbid: String(r.id), imdbid: d.imdb_id || (d.external_ids && d.external_ids.imdb_id) || "",
     };
   }
   return r;
 }
+
+// IMDb and Rotten Tomatoes scores come from OMDb (omdbapi.com), looked up by IMDb id.
+async function omdbScores(imdbid) {
+  if (!imdbid || isPlaceholder(CFG.OMDB_KEY)) return null;
+  const u = new URL("https://www.omdbapi.com/");
+  u.searchParams.set("i", imdbid); u.searchParams.set("apikey", CFG.OMDB_KEY);
+  const d = await getJSON(u);
+  if (d.Response === "False") {
+    const e = new Error(d.Error || "OMDb"); e.omdb = /limit/i.test(d.Error || "") ? "limit" : /key/i.test(d.Error || "") ? "key" : "";
+    throw e;
+  }
+  const rt = (d.Ratings || []).find((x) => x.Source === "Rotten Tomatoes");
+  return { imdb: score(d.imdbRating) != null ? d.imdbRating : "", rt: rt ? rt.Value : "" };
+}
+// For items saved before scores existed: find the TMDB entry by title and year to get the IMDb id.
+async function tmdbFind(it) {
+  const tv = it.type === "serie";
+  const params = { query: it.title, language: "pt-BR", include_adult: "false" };
+  if (it.year) params[tv ? "first_air_date_year" : "year"] = it.year;
+  const d = await tmdb(tv ? "/search/tv" : "/search/movie", params);
+  const r = (d.results || [])[0];
+  return r ? String(r.id) : "";
+}
+async function findImdbId(it) {
+  const tmdbid = await tmdbFind(it);
+  if (!tmdbid) return { imdbid: "", tmdbid: "" };
+  const ext = await tmdb((it.type === "serie" ? "/tv/" : "/movie/") + tmdbid + "/external_ids");
+  return { imdbid: ext.imdb_id || "", tmdbid };
+}
+let fetchingScores = false;
+async function refreshScores() {
+  if (fetchingScores) return;
+  closeMenu();
+  if (isPlaceholder(CFG.OMDB_KEY)) { show("notice", "Falta a chave do OMDb no config.js para buscar as notas do IMDb e do Rotten Tomatoes. Veja o LEIA-ME.md."); return; }
+  if (isPlaceholder(CFG.TMDB_KEY)) { show("notice", "Falta a chave do TMDB no config.js."); return; }
+  const todo = state.items.filter((i) => !(i.details && i.details.imdb));
+  if (!todo.length) { show("notice", "Todos os títulos já têm nota do IMDb.", true); return; }
+  fetchingScores = true;
+  let ok = 0, miss = 0, stop = "";
+  try {
+    for (let n = 0; n < todo.length; n++) {
+      const it = todo[n];
+      show("notice", "Buscando notas… " + (n + 1) + " de " + todo.length, true);
+      try {
+        const details = { ...(it.details || {}) };
+        if (!details.imdbid) Object.assign(details, await findImdbId(it));
+        const s = details.imdbid ? await omdbScores(details.imdbid) : null;
+        if (s) { if (s.imdb) details.imdb = s.imdb; if (s.rt && !details.rt) details.rt = s.rt; }
+        const clean = cleanDetails(details);
+        if (JSON.stringify(clean) !== JSON.stringify(cleanDetails(it.details))) {
+          const { data, error } = await sb.from("items").update({ details: clean }).eq("id", it.id).select().single();
+          if (error) { stop = dbError(error); break; }
+          const saved = fromRow(data);
+          state.items = state.items.map((i) => (i.id === saved.id ? saved : i));
+        }
+        if (clean.imdb) ok++; else miss++;
+      } catch (e) {
+        if (e.omdb === "limit") { stop = "O OMDb chegou ao limite de buscas do dia (1.000). Tente de novo amanhã."; break; }
+        if (e.omdb === "key") { stop = "A chave do OMDb no config.js não foi aceita. Confira se você ativou a chave pelo link do e-mail."; break; }
+        if (e.status === 429) { stop = "Muitas buscas seguidas. Espere um minuto e tente de novo."; break; }
+        miss++;
+      }
+    }
+  } finally { fetchingScores = false; }
+  render();
+  show("notice", stop || ("Notas atualizadas: " + plural(ok, "título", "títulos") + " com nota" + (miss ? ", " + miss + " sem nota encontrada (preencha à mão, se quiser)." : ".")), !stop);
+}
+$("scoresBtn").addEventListener("click", refreshScores);
 
 let searchSeq = 0;
 function currentSub() { const c = document.querySelector('input[name="sub"]:checked'); return c ? c.value : Object.keys(SECTIONS[state.dlgSection].subs)[0]; }
@@ -629,6 +583,11 @@ function setField(col, value) {
   const inp = document.querySelector('[data-col="' + col + '"]');
   if (inp && value) inp.value = value;
 }
+function setDetail(key, value) {
+  const inp = document.querySelector('[data-key="' + key + '"]');
+  if (inp) inp.value = value || "";
+}
+let picked = {};
 async function pick(r) {
   show("searchState", "Carregando detalhes…");
   try {
@@ -640,7 +599,14 @@ async function pick(r) {
     if (d.synopsis) $("fSyn").value = d.synopsis;
     $("fCoverUrl").value = d.cover || "";
     $("results").hidden = true;
-    show("searchState", d.synopsis ? "" : "Não há descrição disponível para esta opção. Escreva uma se quiser.");
+    picked = { imdbid: d.imdbid || "", tmdbid: d.tmdbid || "" };
+    setDetail("imdb", ""); setDetail("rt", "");
+    let msg = d.synopsis ? "" : "Não há descrição disponível para esta opção. Escreva uma se quiser.";
+    try {
+      const s = await omdbScores(d.imdbid);
+      if (s) { setDetail("imdb", s.imdb); setDetail("rt", s.rt); }
+    } catch (e) { msg = (msg ? msg + " " : "") + "Não deu para buscar as notas do IMDb agora."; }
+    show("searchState", msg);
     drawCoverPreview();
   } catch (e) { show("searchState", "Não deu para carregar os detalhes. Tente outra opção."); }
 }
@@ -706,14 +672,15 @@ function drawCoverPreview() {
     ? "Imagem encontrada. Para trocar, cole o link de outra imagem."
     : "Imagem ilustrada. Busque pelo nome ou cole o link de uma imagem.";
 }
-function openDialog(item, sectionKey) {
+function openDialog(item, sectionKey, subKey) {
   state.editing = item || null;
+  picked = {};
   const s = item ? item.section : sectionKey || (SECTIONS[state.section] ? state.section : "estante");
   state.dlgSection = s;
   const sec = SECTIONS[s];
   $("form").className = "edit sec-" + s;
   const seg = $("subSeg"); seg.replaceChildren();
-  const startSub = item ? item.type : (s === state.section && state.sub) || Object.keys(sec.subs)[0];
+  const startSub = item ? item.type : subKey || (s === state.section && state.sub) || Object.keys(sec.subs)[0];
   Object.entries(sec.subs).forEach(([k, v]) => {
     const lab = el("label");
     const r = document.createElement("input"); r.type = "radio"; r.name = "sub"; r.value = k; r.id = "sub-" + k; r.checked = k === startSub;
@@ -724,7 +691,6 @@ function openDialog(item, sectionKey) {
     lab.append(r, el("span", null, v.one));
     seg.appendChild(lab);
   });
-  $("subLegend").textContent = s === "jogos" ? "Plataforma" : "Tipo";
   $("dlgTitle").textContent = (item ? "Editar " : "Adicionar ") + sec.item;
   $("titleLabel").textContent = sec.titleLabel;
   $("synLabel").textContent = sec.synLabel;
@@ -769,8 +735,9 @@ $("form").addEventListener("submit", async (ev) => {
   document.querySelectorAll("#dynFields input").forEach((i) => {
     if (i.dataset.col) it[i.dataset.col] = i.value; else it.details[i.dataset.key] = i.value;
   });
-  // details that belong to another sub (e.g. "age" after switching whisky → vinho) are dropped
-  const allowed = new Set(SECTIONS[state.dlgSection].fields(it.type).filter((f) => f.key).map((f) => f.key));
+  // drop detail keys that the current form no longer has
+  Object.entries(picked).forEach(([k, v]) => { if (v) it.details[k] = v; });
+  const allowed = new Set([...HIDDEN_DETAILS, ...SECTIONS[state.dlgSection].fields(it.type).filter((f) => f.key).map((f) => f.key)]);
   Object.keys(it.details).forEach((k) => { if (!allowed.has(k)) delete it.details[k]; });
   const row = toRow(it);
   $("saveBtn").disabled = true;
@@ -800,6 +767,183 @@ $("yesDel").addEventListener("click", async () => {
   render();
 });
 
+// ---------- discover (TMDB lists) ----------
+const DISCOVER = {
+  trending: { label: "Tendências da semana", path: (tv) => "/trending/" + (tv ? "tv" : "movie") + "/week" },
+  now: { label: (tv) => (tv ? "No ar" : "Em cartaz"), path: (tv) => (tv ? "/tv/on_the_air" : "/movie/now_playing"), params: { region: "BR" } },
+  popular: { label: "Populares", path: (tv) => (tv ? "/tv/popular" : "/movie/popular"), params: { region: "BR" },
+    byGenre: () => ({ sort_by: "popularity.desc" }) },
+  top: { label: "Mais bem avaliados", path: (tv) => (tv ? "/tv/top_rated" : "/movie/top_rated"),
+    byGenre: (tv) => ({ sort_by: "vote_average.desc", "vote_count.gte": tv ? "200" : "300" }) },
+  foryou: { label: "Para você" },
+};
+// want/autoLeft: when a genre is filtered on our side, keep loading pages until enough titles show up
+const disc = { list: "trending", type: "filme", genre: "", cache: {}, genres: {}, want: 12, autoLeft: 4 };
+function tmdbItem(r, tv) {
+  return {
+    source: "tmdb", id: r.id, tv, title: tv ? r.name : r.title,
+    original: tv ? r.original_name : r.original_title,
+    year: ((tv ? r.first_air_date : r.release_date) || "").slice(0, 4),
+    cover: r.poster_path ? POSTER + r.poster_path : null,
+    synopsis: r.overview || "", vote: r.vote_average || 0, votes: r.vote_count || 0,
+    genreIds: r.genre_ids || [],
+  };
+}
+async function loadGenres() {
+  if (disc.genres.loading || disc.genres.filme) return;
+  disc.genres.loading = true;
+  try {
+    const [m, t] = await Promise.all([tmdb("/genre/movie/list", { language: "pt-BR" }), tmdb("/genre/tv/list", { language: "pt-BR" })]);
+    const sorted = (g) => (g || []).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    disc.genres = { filme: sorted(m.genres), serie: sorted(t.genres) };
+  } catch (e) { disc.genres = {}; return; }
+  if (state.section === "descobrir") renderDiscover();
+}
+function genreNames(r) {
+  const list = disc.genres[r.tv ? "serie" : "filme"] || [];
+  return r.genreIds.map((id) => (list.find((g) => g.id === id) || {}).name).filter(Boolean).slice(0, 3).join(", ");
+}
+function inMyList(r) {
+  const type = r.tv ? "serie" : "filme";
+  return state.items.some((i) => i.type === type && ((i.details && i.details.tmdbid === String(r.id)) ||
+    (norm(i.title) === norm(r.title) && (!i.year || !r.year || i.year === r.year))));
+}
+// Recommendations from up to 6 titles the person liked (rated 4+ or watched).
+async function forYou(tv) {
+  const type = tv ? "serie" : "filme";
+  const seeds = state.items.filter((i) => i.type === type && (i.rating >= 4 || i.status === "concluido"))
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6);
+  if (!seeds.length) return { results: [], noSeeds: true };
+  const tally = new Map();
+  for (const it of seeds) {
+    const id = (it.details && it.details.tmdbid) || await tmdbFind(it).catch(() => "");
+    if (!id) continue;
+    const d = await tmdb((tv ? "/tv/" : "/movie/") + id + "/recommendations", { language: "pt-BR" }).catch(() => ({}));
+    (d.results || []).forEach((r) => {
+      const t = tally.get(r.id) || { r, n: 0, from: [] };
+      t.n++; if (t.from.length < 2) t.from.push(it.title);
+      tally.set(r.id, t);
+    });
+  }
+  const results = [...tally.values()].sort((a, b) => b.n - a.n || (b.r.vote_average || 0) - (a.r.vote_average || 0))
+    .map((t) => ({ ...tmdbItem(t.r, tv), because: t.from }));
+  return { results };
+}
+// popular and top rated ask TMDB for the genre directly; the other lists are filtered here
+const genreByApi = () => Boolean(disc.genre && DISCOVER[disc.list].byGenre);
+const discKey = () => disc.list + "/" + disc.type + (genreByApi() ? "/" + disc.genre : "");
+async function loadDiscover(more) {
+  const tv = disc.type === "serie";
+  const key = discKey();
+  const c = disc.cache[key] || (disc.cache[key] = { results: [], page: 0, total: 1 });
+  if (c.loading || (!more && c.page)) return;
+  c.loading = true;
+  $("discMore").hidden = true;
+  show("discState", "Carregando…");
+  try {
+    if (disc.list === "foryou") {
+      const d = await forYou(tv);
+      Object.assign(c, d, { page: 1, total: 1 });
+    } else {
+      const L = DISCOVER[disc.list];
+      const params = { language: "pt-BR", page: String(c.page + 1) };
+      const path = genreByApi() ? (tv ? "/discover/tv" : "/discover/movie") : L.path(tv);
+      Object.assign(params, genreByApi() ? { with_genres: disc.genre, include_adult: "false", ...L.byGenre(tv) } : L.params || {});
+      const d = await tmdb(path, params);
+      const seen = new Set(c.results.map((r) => r.id));
+      c.results.push(...(d.results || []).filter((r) => !seen.has(r.id)).map((r) => tmdbItem(r, tv)));
+      c.page = d.page || c.page + 1; c.total = Math.min(d.total_pages || 1, 20);
+    }
+  } catch (e) {
+    c.error = e.status === 429 ? "Muitas buscas seguidas. Espere um minuto e tente de novo." : "Não deu para carregar agora. Verifique a conexão e tente de novo.";
+  } finally { c.loading = false; }
+  if (key === discKey()) renderDiscover();
+}
+function discCard(r) {
+  const card = el("article", "card sec-estante");
+  card.appendChild(coverEl({ section: "estante", type: r.tv ? "serie" : "filme", title: r.title, coverUrl: r.cover }));
+  const body = el("div", "body");
+  const top = el("div", "card-top");
+  top.appendChild(el("span", "kind", r.tv ? "Série" : "Filme"));
+  body.appendChild(top);
+  body.appendChild(el("h3", null, r.title));
+  const meta = [r.year, r.original && r.original !== r.title ? r.original : ""].filter(Boolean).join(" · ");
+  if (meta) body.appendChild(el("div", "meta", meta));
+  const g = genreNames(r);
+  if (g) body.appendChild(el("div", "genre", g));
+  if (r.votes >= 20) body.appendChild(el("div", "extra", "Nota TMDB " + r.vote.toFixed(1).replace(".", ",")));
+  if (r.because && r.because.length) body.appendChild(el("div", "extra", "Porque você gostou de " + r.because.join(" e ")));
+  if (r.synopsis) body.appendChild(el("p", "syn", r.synopsis));
+  if (inMyList(r)) body.appendChild(el("span", "status s-concluido", "Na sua lista"));
+  else {
+    const add = el("button", "btn", "+ Adicionar à lista"); add.type = "button";
+    add.addEventListener("click", () => {
+      openDialog(null, "estante", r.tv ? "serie" : "filme");
+      $("fTitle").value = r.title;
+      pick(r);
+    });
+    body.appendChild(add);
+  }
+  card.appendChild(body);
+  return card;
+}
+function resetAuto() { disc.want = 12; disc.autoLeft = 4; }
+function renderDiscover() {
+  const tabs = $("discTabs"); tabs.replaceChildren();
+  Object.entries(DISCOVER).forEach(([k, v]) => {
+    const b = el("button", "tab", typeof v.label === "function" ? v.label(disc.type === "serie") : v.label); b.type = "button";
+    b.setAttribute("aria-pressed", String(disc.list === k));
+    b.addEventListener("click", () => { disc.list = k; resetAuto(); renderDiscover(); });
+    tabs.appendChild(b);
+  });
+  const types = $("discType"); types.replaceChildren();
+  [["filme", "Filmes"], ["serie", "Séries"]].forEach(([k, label]) => {
+    const b = el("button", "tab", label); b.type = "button";
+    b.setAttribute("aria-pressed", String(disc.type === k));
+    b.addEventListener("click", () => { disc.type = k; resetAuto(); renderDiscover(); });
+    types.appendChild(b);
+  });
+  if (isPlaceholder(CFG.TMDB_KEY)) { show("discState", "Falta a chave do TMDB no config.js."); return; }
+
+  // genre select (the movie and series genre lists are different)
+  const genres = disc.genres[disc.type] || [];
+  if (disc.genre && genres.length && !genres.some((x) => String(x.id) === disc.genre)) disc.genre = "";
+  const sel = $("discGenre");
+  if (sel.dataset.for !== disc.type + ":" + genres.length) {
+    sel.replaceChildren(new Option("Todos os gêneros", ""), ...genres.map((x) => new Option(x.name, String(x.id))));
+    sel.dataset.for = disc.type + ":" + genres.length;
+  }
+  sel.value = disc.genre;
+  if (!disc.genres.filme) loadGenres();
+
+  const key = discKey();
+  const c = disc.cache[key];
+  if (c && c.error && !c.page) { delete disc.cache[key]; $("discList").replaceChildren(); show("discState", c.error); return; }
+  if (!c || !c.page) { $("discList").replaceChildren(); loadDiscover(false); return; }
+  const localGenre = disc.genre && !genreByApi() ? Number(disc.genre) : 0;
+  const hideMine = $("discHide").checked || disc.list === "foryou";
+  const rows = c.results.filter((r) => (!localGenre || r.genreIds.includes(localGenre)) && (!hideMine || !inMyList(r)));
+  $("discList").replaceChildren(...rows.map(discCard));
+  const canMore = disc.list !== "foryou" && c.page < c.total;
+  $("discMore").hidden = !canMore || c.loading;
+  if (c.error) { show("discState", c.error); delete c.error; return; }
+  if (localGenre && canMore && rows.length < disc.want && disc.autoLeft > 0) { disc.autoLeft--; loadDiscover(true); return; }
+  let msg = "";
+  if (disc.list === "foryou" && c.noSeeds) {
+    msg = "Dê nota 4 ou 5 (ou marque como " + (disc.type === "serie" ? "vista) em algumas séries" : "visto) em alguns filmes") + " da sua lista para receber recomendações.";
+  } else if (!rows.length) {
+    msg = localGenre ? "Nenhum título desse gênero nesta lista. Tente \"Populares\" ou \"Mais bem avaliados\", que buscam direto pelo gênero."
+      : disc.list === "foryou" ? "Nenhuma recomendação nova por enquanto." : "Nada para mostrar aqui.";
+  }
+  show("discState", msg);
+}
+$("discMore").addEventListener("click", () => {
+  disc.want = $("discList").children.length + 10; disc.autoLeft = 4;
+  loadDiscover(true);
+});
+$("discHide").addEventListener("change", renderDiscover);
+$("discGenre").addEventListener("change", (e) => { disc.genre = e.target.value; resetAuto(); renderDiscover(); });
+
 // ---------- export / import ----------
 $("exportBtn").addEventListener("click", () => {
   const data = state.items.map((it) => ({ ...toRow(it), created_at: it.createdAt }));
@@ -817,13 +961,13 @@ $("importFile").addEventListener("change", async (ev) => {
   let list;
   try { list = JSON.parse(await file.text()); } catch (e) { show("notice", "Este arquivo não é um JSON válido."); return; }
   if (!Array.isArray(list)) list = list && Array.isArray(list.items) ? list.items : [];
-  const rows = list.filter((x) => x && typeof x === "object" && x.title && !x.example).map((x) => {
+  const rows = list.filter((x) => x && typeof x === "object" && x.title && !x.example && SECTIONS.estante.subs[x.type]).map((x) => {
     const r = toRow(x);
     const when = x.created_at || x.createdAt;
     if (when && !isNaN(Date.parse(when))) r.created_at = new Date(when).toISOString();
     return r;
   });
-  if (!rows.length) { show("notice", "Não encontrei registros nesse arquivo."); return; }
+  if (!rows.length) { show("notice", "Não encontrei filmes ou séries nesse arquivo."); return; }
   show("notice", "");
   for (let i = 0; i < rows.length; i += 100) {
     const { error } = await sb.from("items").insert(rows.slice(i, i + 100));
@@ -834,7 +978,6 @@ $("importFile").addEventListener("change", async (ev) => {
 
 // ---------- toolbar ----------
 $("q").addEventListener("input", (e) => { state.q = e.target.value; render(); });
-$("fStatus").addEventListener("change", (e) => { state.status = e.target.value; render(); });
 $("sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
 $("addBtn").addEventListener("click", () => openDialog(null));
 
